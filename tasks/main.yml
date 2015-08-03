@@ -1,0 +1,20 @@
+- name: check if a bind container is started
+  command: bash -c "docker ps | grep bind"
+  ignore_errors: True
+  register: result
+
+- name: put named.conf.local
+  template: src=named.conf.local dest={{ ext_bind_conf_volume }}/named.conf.local
+
+- name: start a bind container
+  command: docker run -d
+              -p=53:53
+              -p=53:53/udp
+              --read-only
+              --restart=always
+              -v {{ ext_bind_conf_volume }}/named.conf.local:/etc/bind/named.conf.local
+              -v {{ ext_bind_slave_zones_volume }}:/etc/bind/zones/slave
+              -v {{ ext_bind_var_run_volume }}:/var/run/named
+              -v {{ ext_bind_var_cache_volume }}:/var/cache/bind
+              --name=bind gitinsky/bind:0.1.1
+  when: result|failed
