@@ -8,8 +8,8 @@
     read_only: yes
     hostname: "{{ ansible_hostname }}-bind"
     ports:
-      - "53:53"
-      - "53:53/udp"
+      - "{{ ansible_default_ipv4.address }}:53:53"
+      - "{{ ansible_default_ipv4.address }}:53:53/udp"
     restart_policy: always
     restart_policy_retry: 10000000
     volumes:
